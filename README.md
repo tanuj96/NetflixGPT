@@ -11,6 +11,10 @@
 - Firebase Setup
 - Deploying to firebse production
 - Create Sign Up User Authentication
+- Created Sign  In authentication
+- Created redux store with user slice
+- Implemented Sign Out
+- Update profile
 
 # Features
 - Login/Signup Page

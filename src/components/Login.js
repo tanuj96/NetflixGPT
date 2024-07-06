@@ -4,15 +4,21 @@ import { checkValidateData } from "../utils/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const email = useRef(null);
   const password = useRef(null);
+  const name = useRef(null);
 
   const handleButtonClick = () => {
     //Validate the form data
@@ -34,8 +40,25 @@ const Login = () => {
         .then((userCredential) => {
           // Signed up
           const user = userCredential.user;
-          console.log(user);
-          // ...
+          updateProfile(user, {
+            displayName: name.current.value,
+            photoURL: "https://avatars.githubusercontent.com/u/35832404?v=4",
+          })
+            .then(() => {
+                const { uid, email, displayName, photoURL } = auth.currentUser;
+                dispatch(
+                    addUser({
+                      uid: uid,
+                      email: email,
+                      displayName: displayName,
+                      photoURL: photoURL,
+                    })
+                  );
+                navigate("/browse");
+            })
+            .catch((error) => {
+              setErrorMessage(error);
+            });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -52,7 +75,7 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           console.log(user);
-          // ...
+          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -83,6 +106,7 @@ const Login = () => {
         </h1>
         {!isSignIn && (
           <input
+            ref={name}
             type="text"
             placeholder="Full Name"
             className="p-4 my-4 w-full bg-gray-700"
